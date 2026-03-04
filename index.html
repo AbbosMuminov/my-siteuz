@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Abbos Muminov — Portfolio</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #0a0e1a;
+    --bg2:      #0f1525;
+    --card:     #131929;
+    --border:   rgba(0,210,180,.12);
+    --accent:   #00d2b4;
+    --accent2:  #0099ff;
+    --purple:   #a78bfa;
+    --text:     #e2e8f0;
+    --muted:    #64748b;
+    --green:    #4ade80;
+    --red:      #f87171;
+    --radius:   16px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+  html { scroll-behavior:smooth; }
+
+  body {
+    font-family: 'Syne', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── NOISE TEXTURE OVERLAY ── */
+  body::before {
+    content:'';
+    position:fixed; inset:0; z-index:0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events:none;
+  }
+
+  /* ── GLOW BLOBS ── */
+  .blob {
+    position: fixed;
+    border-radius: 50%;
+    filter: blur(80px);
+    pointer-events: none;
+    z-index: 0;
+    animation: blobFloat 8s ease-in-out infinite;
+  }
+  .blob1 { width:320px; height:320px; background:rgba(0,210,180,.06); top:-80px; right:-80px; }
+  .blob2 { width:250px; height:250px; background:rgba(0,153,255,.05); bottom:100px; left:-60px; animation-delay:-4s; }
+
+  @keyframes blobFloat {
+    0%,100% { transform:translateY(0) scale(1); }
+    50%      { transform:translateY(-30px) scale(1.05); }
+  }
+
+  /* ── LAYOUT ── */
+  .wrapper { position:relative; z-index:1; max-width:480px; margin:0 auto; padding:0 0 40px; }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 40px 20px 32px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: fadeUp .6s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(20px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+
+  .avatar-ring {
+    width: 96px; height: 96px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2), var(--purple));
+    padding: 3px;
+    margin-bottom: 16px;
+    animation: spin 8s linear infinite;
+  }
+  @keyframes spin {
+    to { filter: hue-rotate(360deg); }
+  }
+
+  .avatar-inner {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    background: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 36px;
+  }
+
+  .hero-name {
+    font-size: 26px; font-weight: 800;
+    letter-spacing: -.5px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+  }
+
+  .hero-role {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--accent);
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .hero-loc {
+    font-size: 13px; color: var(--muted);
+    display: flex; align-items: center; gap: 5px;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .stat-row {
+    display: flex; gap: 12px;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .stat-box {
+    flex: 1; max-width: 90px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px 8px;
+    text-align: center;
+  }
+  .stat-num {
+    font-size: 22px; font-weight: 800;
+    color: var(--accent);
+    display: block;
+  }
+  .stat-lbl {
+    font-size: 11px; color: var(--muted);
+    margin-top: 2px; display: block;
+  }
+
+  /* ── NAV TABS ── */
+  .nav {
+    display: flex;
+    gap: 8px;
+    padding: 0 20px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-bottom: 20px;
+    animation: fadeUp .6s .1s ease both;
+  }
+  .nav::-webkit-scrollbar { display:none; }
+
+  .nav-tab {
+    flex-shrink: 0;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    border: 1px solid var(--border);
+    background: var(--card);
+    color: var(--muted);
+    transition: all .2s;
+    white-space: nowrap;
+  }
+  .nav-tab.active, .nav-tab:hover {
+    background: var(--accent);
+    color: #000;
+    border-color: var(--accent);
+  }
+
+  /* ── SECTIONS ── */
+  .section { display:none; padding: 0 20px; animation: fadeUp .4s ease both; }
+  .section.active { display:block; }
+
+  .section-title {
+    font-size: 11px; font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    transition: border-color .2s, transform .2s;
+  }
+  .card:hover { border-color: rgba(0,210,180,.3); transform: translateY(-2px); }
+
+  .card-title {
+    font-size: 15px; font-weight: 700;
+    margin-bottom: 6px;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .card-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+
+  /* ── BIO CARD ── */
+  .bio-text {
+    font-size: 14px; line-height: 1.7;
+    color: var(--muted);
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    border-left: 3px solid var(--accent);
+  }
+
+  /* ── SKILL BARS ── */
+  .skill-group { margin-bottom: 20px; }
+
+  .skill-group-title {
+    font-size: 12px; font-weight: 700;
+    color: var(--text);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+
+  .skill-item { margin-bottom: 10px; }
+
+  .skill-header {
+    display: flex; justify-content: space-between;
+    font-size: 13px; margin-bottom: 5px;
+  }
+  .skill-name { color: var(--text); font-weight: 600; }
+  .skill-pct  {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; color: var(--accent);
+  }
+
+  .skill-track {
+    height: 5px; background: rgba(255,255,255,.06);
+    border-radius: 3px; overflow: hidden;
+  }
+  .skill-fill {
+    height: 100%; border-radius: 3px; width: 0%;
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ── PROJECT CARDS ── */
+  .proj-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    transition: all .2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .proj-card::before {
+    content:'';
+    position: absolute; top:0; left:0; right:0; height:2px;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform .3s;
+  }
+  .proj-card:hover::before, .proj-card.open::before { transform: scaleX(1); }
+  .proj-card:hover { border-color: rgba(0,210,180,.25); transform: translateY(-2px); }
+
+  .proj-header {
+    display: flex; align-items: center;
+    justify-content: space-between;
+  }
+
+  .proj-name {
+    font-size: 15px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px;
+  }
+
+  .proj-arrow {
+    color: var(--muted); font-size: 12px;
+    transition: transform .3s;
+  }
+  .proj-card.open .proj-arrow { transform: rotate(90deg); color: var(--accent); }
+
+  .proj-body {
+    max-height: 0; overflow: hidden;
+    transition: max-height .35s ease;
+  }
+  .proj-card.open .proj-body { max-height: 200px; }
+
+  .proj-desc {
+    font-size: 13px; color: var(--muted);
+    line-height: 1.6; margin-top: 10px;
+  }
+
+  .tag-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid rgba(0,210,180,.25);
+    color: var(--accent);
+    background: rgba(0,210,180,.07);
+  }
+
+  .status-badge {
+    font-size: 11px; font-weight: 600;
+    padding: 3px 10px; border-radius: 20px;
+    flex-shrink: 0;
+  }
+  .status-done    { background:rgba(74,222,128,.12); color:var(--green); }
+  .status-wip     { background:rgba(248,113,113,.12); color:var(--red); }
+  .status-shipped { background:rgba(0,210,180,.12);   color:var(--accent); }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: #060912;
+    border: 1px solid rgba(0,210,180,.15);
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.8;
+    overflow-x: auto;
+    margin: 12px 0;
+  }
+  .kw  { color: #c792ea; }
+  .fn  { color: #82aaff; }
+  .st  { color: #c3e88d; }
+  .nm  { color: #f78c6c; }
+  .cm  { color: #3d4f6b; }
+  .pr  { color: var(--accent); }
+
+  /* ── NET SKILL GRID ── */
+  .net-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin-top: 10px;
+  }
+
+  .net-item {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    display: flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 600;
+    transition: all .2s;
+  }
+  .net-item:hover { border-color: rgba(167,139,250,.3); transform: translateY(-2px); }
+  .net-item .icon { font-size: 18px; }
+
+  /* ── CONTACT ── */
+  .contact-btn {
+    display: flex; align-items: center; gap: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 14px 16px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: var(--text);
+    font-size: 15px; font-weight: 600;
+    transition: all .2s;
+  }
+  .contact-btn:hover { transform: translateY(-2px); }
+  .contact-btn.tg   { border-color: rgba(41,182,246,.3); }
+  .contact-btn.tg:hover   { background:rgba(41,182,246,.08); }
+  .contact-btn.ig   { border-color: rgba(240,80,120,.3); }
+  .contact-btn.ig:hover   { background:rgba(240,80,120,.08); }
+  .contact-btn.li   { border-color: rgba(0,119,181,.3); }
+  .contact-btn.li:hover   { background:rgba(0,119,181,.08); }
+
+  .contact-icon {
+    width: 40px; height: 40px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; flex-shrink: 0;
+  }
+  .contact-icon.tg { background: rgba(41,182,246,.15); }
+  .contact-icon.ig { background: rgba(240,80,120,.15); }
+  .contact-icon.li { background: rgba(0,119,181,.15); }
+
+  .contact-info { flex:1; }
+  .contact-name { font-size: 14px; font-weight: 700; }
+  .contact-handle { font-size: 12px; color: var(--muted); font-family: 'JetBrains Mono', monospace; }
+
+  .contact-arrow { color: var(--muted); font-size: 14px; }
+
+  /* ── AVAIL BADGE ── */
+  .avail {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(74,222,128,.08);
+    border: 1px solid rgba(74,222,128,.2);
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    font-size: 13px; font-weight: 600; color: var(--green);
+  }
+  .avail-dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--green);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+  @keyframes pulse {
+    0%,100% { box-shadow:0 0 0 0 rgba(74,222,128,.5); }
+    50%      { box-shadow:0 0 0 6px rgba(74,222,128,0); }
+  }
+
+  /* ── STAGGER ANIMATIONS ── */
+  .stagger > * {
+    opacity: 0;
+    animation: fadeUp .4s ease forwards;
+  }
+  .stagger > *:nth-child(1) { animation-delay:.05s; }
+  .stagger > *:nth-child(2) { animation-delay:.1s; }
+  .stagger > *:nth-child(3) { animation-delay:.15s; }
+  .stagger > *:nth-child(4) { animation-delay:.2s; }
+  .stagger > *:nth-child(5) { animation-delay:.25s; }
+  .stagger > *:nth-child(6) { animation-delay:.3s; }
+
+  /* ── DIVIDER ── */
+  .divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+    margin: 16px 0;
+  }
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+
+<div class="wrapper">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="avatar-ring">
+      <div class="avatar-inner">👨‍💻</div>
+    </div>
+    <div class="hero-name">Abbos Muminov</div>
+    <div class="hero-role">Flutter Developer &amp; SysAdmin</div>
+    <div class="hero-loc">📍 Samarkand, Uzbekistan</div>
+    <div class="stat-row">
+      <div class="stat-box"><span class="stat-num">25</span><span class="stat-lbl">Yosh</span></div>
+      <div class="stat-box"><span class="stat-num">3+</span><span class="stat-lbl">Yil tajriba</span></div>
+      <div class="stat-box"><span class="stat-num">10+</span><span class="stat-lbl">Loyihalar</span></div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <div class="nav-tab active" data-tab="about">Haqimda</div>
+    <div class="nav-tab" data-tab="skills">Skills</div>
+    <div class="nav-tab" data-tab="projects">Loyihalar</div>
+    <div class="nav-tab" data-tab="network">Network</div>
+    <div class="nav-tab" data-tab="contact">Bog'lanish</div>
+  </div>
+
+  <!-- ── ABOUT ── -->
+  <div class="section active" id="tab-about">
+    <p class="section-title">// men haqimda</p>
+    <div class="bio-text">
+      Flutter bilan cross-platform ilovalar yarataman va tarmoq infratuzilmasini boshqaraman.
+      Yangi texnologiyalarga qiziqaman va doim o'rgana boraman. 🚀
+    </div>
+    <div class="stagger">
+      <div class="card">
+        <div class="card-title">📱 Mobile Development</div>
+        <div class="card-desc">Flutter & Dart bilan iOS va Android uchun bir vaqtda ishlaydigan ilovalar yarataman. Clean architecture va state management (Provider, BLoC).</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🖧 Network & SysAdmin</div>
+        <div class="card-desc">Cisco uskunalar bilan VLAN sozlash, ADDC/DNS/DHCP server konfiguratsiyasi, VPN va Firewall boshqaruvi.</div>
+      </div>
+      <div class="card">
+        <div class="card-title">🐍 Backend & Bots</div>
+        <div class="card-desc">Python (aiogram, FastAPI) bilan Telegram botlar va REST API servislar yarataman. MySQL, MongoDB, SQLite ishlash.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── SKILLS ── -->
+  <div class="section" id="tab-skills">
+    <p class="section-title">// texnologiyalar</p>
+    <div class="stagger">
+
+      <div class="skill-group">
+        <div class="skill-group-title">📱 Mobile & Frontend</div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">Flutter</span><span class="skill-pct">92%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#00d2b4,#0099ff)" data-w="92"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">Dart</span><span class="skill-pct">90%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#00d2b4,#0099ff)" data-w="90"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">HTML / CSS</span><span class="skill-pct">75%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#00d2b4,#0099ff)" data-w="75"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">JavaScript</span><span class="skill-pct">65%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#00d2b4,#0099ff)" data-w="65"></div></div></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🐍 Backend & Scripting</div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">Python</span><span class="skill-pct">78%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#a78bfa,#0099ff)" data-w="78"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">aiogram</span><span class="skill-pct">80%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#a78bfa,#0099ff)" data-w="80"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">REST API</span><span class="skill-pct">72%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#a78bfa,#0099ff)" data-w="72"></div></div></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🗄 Databases</div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">MySQL / SQL</span><span class="skill-pct">82%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#f78c6c,#f59e0b)" data-w="82"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">SQLite</span><span class="skill-pct">85%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#f78c6c,#f59e0b)" data-w="85"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">MongoDB</span><span class="skill-pct">65%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#f78c6c,#f59e0b)" data-w="65"></div></div></div>
+      </div>
+
+      <div class="skill-group">
+        <div class="skill-group-title">🖧 Networking</div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">Cisco IOS</span><span class="skill-pct">75%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#4ade80,#0099ff)" data-w="75"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">ADDC / DNS</span><span class="skill-pct">72%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#4ade80,#0099ff)" data-w="72"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">Linux Admin</span><span class="skill-pct">70%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#4ade80,#0099ff)" data-w="70"></div></div></div>
+        <div class="skill-item"><div class="skill-header"><span class="skill-name">Windows Server</span><span class="skill-pct">68%</span></div><div class="skill-track"><div class="skill-fill" style="background:linear-gradient(90deg,#4ade80,#0099ff)" data-w="68"></div></div></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── PROJECTS ── -->
+  <div class="section" id="tab-projects">
+    <p class="section-title">// loyihalar</p>
+    <div class="stagger">
+
+      <div class="proj-card" onclick="toggleProject(this)">
+        <div class="proj-header">
+          <div class="proj-name">📱 Flutter Chat App</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-badge status-done">Tayyor</span>
+            <span class="proj-arrow">▶</span>
+          </div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-desc">Real-time xabar almashish ilovasi. Firebase Firestore + FCM push notifications. Group chat, media sharing.</div>
+          <div class="tag-row">
+            <span class="tag">Flutter</span><span class="tag">Dart</span><span class="tag">Firebase</span><span class="tag">FCM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proj-card" onclick="toggleProject(this)">
+        <div class="proj-header">
+          <div class="proj-name">🤖 Portfolio Bot</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-badge status-done">Tayyor</span>
+            <span class="proj-arrow">▶</span>
+          </div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-desc">Ushbu bot! aiogram 3.x + Python. Inline keyboard, web app integratsiyasi, portfolio ko'rsatish.</div>
+          <div class="tag-row">
+            <span class="tag">Python</span><span class="tag">aiogram</span><span class="tag">asyncio</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proj-card" onclick="toggleProject(this)">
+        <div class="proj-header">
+          <div class="proj-name">🖧 Enterprise Network</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-badge status-shipped">Amalga oshirildi</span>
+            <span class="proj-arrow">▶</span>
+          </div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-desc">Korporativ tarmoq loyihasi. Cisco router/switch VLAN segmentatsiyasi, ADDC server, DHCP, DNS.</div>
+          <div class="tag-row">
+            <span class="tag">Cisco IOS</span><span class="tag">ADDC</span><span class="tag">DHCP</span><span class="tag">VLAN</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="proj-card" onclick="toggleProject(this)">
+        <div class="proj-header">
+          <div class="proj-name">🛒 Flutter E-Commerce</div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <span class="status-badge status-wip">Ishlanmoqda</span>
+            <span class="proj-arrow">▶</span>
+          </div>
+        </div>
+        <div class="proj-body">
+          <div class="proj-desc">To'liq funksional onlayn do'kon. Provider state management, REST API integratsiya, SQLite local cache.</div>
+          <div class="tag-row">
+            <span class="tag">Flutter</span><span class="tag">Dart</span><span class="tag">REST API</span><span class="tag">SQLite</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── NETWORK ── -->
+  <div class="section" id="tab-network">
+    <p class="section-title">// networking & sysadmin</p>
+    <div class="stagger">
+
+      <div class="code-block">
+<span class="cm"># Cisco Router konfiguratsiya namunasi</span>
+<span class="pr">Router</span><span class="kw">#</span> conf t
+<span class="pr">Router</span>(config)<span class="kw">#</span> <span class="fn">interface</span> GigabitEthernet0/0
+<span class="pr">Router</span>(config-if)<span class="kw">#</span> ip address <span class="nm">192.168.1.1</span> <span class="nm">255.255.255.0</span>
+<span class="pr">Router</span>(config-if)<span class="kw">#</span> description <span class="st">"LAN Interface"</span>
+<span class="pr">Router</span>(config-if)<span class="kw">#</span> no shutdown
+<span class="pr">Router</span>(config-if)<span class="kw">#</span> <span class="fn">exit</span>
+<span class="cm"># VLAN yaratish</span>
+<span class="pr">Router</span>(config)<span class="kw">#</span> vlan <span class="nm">10</span>
+<span class="pr">Router</span>(config-vlan)<span class="kw">#</span> name <span class="st">MANAGEMENT</span>
+      </div>
+
+      <div class="net-grid">
+        <div class="net-item"><span class="icon">🔧</span> VLAN Setup</div>
+        <div class="net-item"><span class="icon">🌐</span> ADDC / DNS</div>
+        <div class="net-item"><span class="icon">📡</span> DHCP Server</div>
+        <div class="net-item"><span class="icon">🔒</span> VPN / Firewall</div>
+        <div class="net-item"><span class="icon">🐧</span> Linux Admin</div>
+        <div class="net-item"><span class="icon">🪟</span> Windows Server</div>
+        <div class="net-item"><span class="icon">📊</span> Monitoring</div>
+        <div class="net-item"><span class="icon">🛡</span> Security</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── CONTACT ── -->
+  <div class="section" id="tab-contact">
+    <p class="section-title">// bog'lanish</p>
+    <div class="avail">
+      <div class="avail-dot"></div>
+      Yangi loyihalar uchun ochiqman
+    </div>
+    <div class="stagger">
+      <a href="https://t.me/Abboss07M" class="contact-btn tg" target="_blank">
+        <div class="contact-icon tg">✈️</div>
+        <div class="contact-info">
+          <div class="contact-name">Telegram</div>
+          <div class="contact-handle">@Abboss07M</div>
+        </div>
+        <span class="contact-arrow">→</span>
+      </a>
+      <a href="https://www.instagram.com/abboss07m" class="contact-btn ig" target="_blank">
+        <div class="contact-icon ig">📸</div>
+        <div class="contact-info">
+          <div class="contact-name">Instagram</div>
+          <div class="contact-handle">@abboss07m</div>
+        </div>
+        <span class="contact-arrow">→</span>
+      </a>
+      <a href="https://www.linkedin.com/in/abbos-muminov-ab9333281" class="contact-btn li" target="_blank">
+        <div class="contact-icon li">💼</div>
+        <div class="contact-info">
+          <div class="contact-name">LinkedIn</div>
+          <div class="contact-handle">Abbos Muminov</div>
+        </div>
+        <span class="contact-arrow">→</span>
+      </a>
+    </div>
+    <div class="divider"></div>
+    <div class="card" style="text-align:center">
+      <div style="font-size:13px;color:var(--muted)">Odatda <strong style="color:var(--accent)">1-2 soat</strong> ichida javob beraman</div>
+    </div>
+  </div>
+
+</div><!-- /wrapper -->
+
+<script>
+// ── Telegram Web App init ──
+const tg = window.Telegram?.WebApp;
+if (tg) {
+  tg.ready();
+  tg.expand();
+  // Telegram theme ga moslashtirish
+  if (tg.colorScheme === 'light') {
+    document.documentElement.style.setProperty('--bg',    '#f0f4f8');
+    document.documentElement.style.setProperty('--bg2',   '#e8edf3');
+    document.documentElement.style.setProperty('--card',  '#ffffff');
+    document.documentElement.style.setProperty('--text',  '#1a202c');
+    document.documentElement.style.setProperty('--muted', '#718096');
+  }
+}
+
+// ── TAB SWITCHING ──
+const tabs    = document.querySelectorAll('.nav-tab');
+const sections = document.querySelectorAll('.section');
+
+tabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const target = tab.dataset.tab;
+
+    tabs.forEach(t => t.classList.remove('active'));
+    sections.forEach(s => s.classList.remove('active'));
+
+    tab.classList.add('active');
+    document.getElementById('tab-' + target).classList.add('active');
+
+    // Animate skill bars when skills tab opens
+    if (target === 'skills') animateBars();
+  });
+});
+
+// ── SKILL BAR ANIMATION ──
+function animateBars() {
+  document.querySelectorAll('.skill-fill').forEach(bar => {
+    const w = bar.dataset.w;
+    setTimeout(() => bar.style.width = w + '%', 100);
+  });
+}
+
+// Auto-animate if skills tab is visible on load
+// (it's not on load, but trigger when switching)
+
+// ── PROJECT ACCORDION ──
+function toggleProject(card) {
+  const isOpen = card.classList.contains('open');
+  document.querySelectorAll('.proj-card').forEach(c => c.classList.remove('open'));
+  if (!isOpen) card.classList.add('open');
+}
+
+// ── STAGGER on section show ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.querySelectorAll('.stagger > *').forEach((el, i) => {
+        el.style.animationDelay = (i * 0.07) + 's';
+        el.style.opacity = '';
+      });
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.section').forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
